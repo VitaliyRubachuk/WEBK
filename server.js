@@ -11,96 +11,102 @@ const port = 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
-
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'restaurant'
+    database: 'mysql'
 });
 
 db.connect(err => {
     if (err) throw err;
     console.log('MySQL Connected...');
-});
+    
 
-
-db.query(`CREATE DATABASE IF NOT EXISTS restaurant`, (err, result) => {
-    if (err) throw err;
-    console.log('Database created or exists already');
-});
-
-
-
-db.query(`CREATE TABLE IF NOT EXISTS orders (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255) NOT NULL,
-    additionalRequests TEXT,
-    orderedItemsIds TEXT
-)`, (err, result) => {
-    if (err) throw err;
-    console.log('Orders table created or exists already');
-});
-
-db.query(`CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    role VARCHAR(50) DEFAULT 'user'
-)`, (err, result) => {
-    if (err) throw err;
-    console.log('Users table created or exists already');
-
-    db.query(`SELECT * FROM users WHERE username = 'admin'`, async (err, results) => {
+    db.query(`CREATE DATABASE IF NOT EXISTS restaurant`, (err, result) => {
         if (err) throw err;
-        if (results.length === 0) {
-            try {
-                const hashedPassword = await bcrypt.hash('admin', saltRounds); // Пароль адміністратора 'admin' шифрується
-                db.query(`INSERT INTO users (username, password, role) VALUES ('admin', ?, 'admin')`, [hashedPassword], (err, result) => {
-                    if (err) throw err;
-                    console.log('Admin user created');
-                });
-            } catch (error) {
-                console.error('Error while hashing password:', error);
-                throw error; // Обробка помилок шифрування паролю
-            }
-        } else {
-            console.log('Admin user already exists');
-        }
+        console.log('Database created or exists already');
+
+
+        db.changeUser({ database: 'restaurant' }, err => {
+            if (err) throw err;
+            console.log('Connected to database restaurant');
+
+
+            db.query(`CREATE TABLE IF NOT EXISTS orders (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(255) NOT NULL,
+                additionalRequests TEXT,
+                orderedItemsIds TEXT
+            )`, (err, result) => {
+                if (err) throw err;
+                console.log('Orders table created or exists already');
+            });
+
+            db.query(`CREATE TABLE IF NOT EXISTS users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(255) NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                role VARCHAR(50) DEFAULT 'user'
+            )`, (err, result) => {
+                if (err) throw err;
+                console.log('Users table created or exists already');
+            });
+
+            db.query(`CREATE TABLE IF NOT EXISTS categories (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL
+            )`, (err, result) => {
+                if (err) throw err;
+                console.log('Categories table created or exists already');
+            });
+
+
+            db.query(`CREATE TABLE IF NOT EXISTS menu (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                price DECIMAL(10, 2) NOT NULL,
+                image TEXT,
+                description TEXT,
+                weight INT,
+                category_id INT,
+                FOREIGN KEY (category_id) REFERENCES categories(id)
+            )`, (err, result) => {
+                if (err) throw err;
+                console.log('Menu table created or exists already');
+            });
+
+
+            db.query(`CREATE TABLE IF NOT EXISTS comments (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(255) NOT NULL,
+                dish_id INT NOT NULL,
+                comment TEXT NOT NULL,
+                FOREIGN KEY (dish_id) REFERENCES menu(id)
+            )`, (err, result) => {
+                if (err) throw err;
+                console.log('Comments table created or exists already');
+            });
+
+            db.query(`SELECT * FROM users WHERE username = 'admin'`, async (err, results) => {
+                if (err) throw err;
+                if (results.length === 0) {
+                    try {
+                        const hashedPassword = await bcrypt.hash('admin', saltRounds); 
+                        db.query(`INSERT INTO users (username, password, role) VALUES ('admin', ?, 'admin')`, [hashedPassword], (err, result) => {
+                            if (err) throw err;
+                            console.log('Admin user created');
+                        });
+                    } catch (error) {
+                        console.error('Error while hashing password:', error);
+                        throw error; // Обробка помилок шифрування паролю
+                    }
+                } else {
+                    console.log('Admin user already exists');
+                }
+            });
+        });
     });
-});
-
-db.query(`CREATE TABLE IF NOT EXISTS categories (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL
-)`, (err, result) => {
-    if (err) throw err;
-    console.log('Categories table created or exists already');
-});
-
-db.query(`CREATE TABLE IF NOT EXISTS menu (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    price DECIMAL(10, 2) NOT NULL,
-    image TEXT,
-    description TEXT,
-    weight INT,
-    category_id INT,
-    FOREIGN KEY (category_id) REFERENCES categories(id)
-)`, (err, result) => {
-    if (err) throw err;
-    console.log('Menu table created or exists already');
-});
-
-db.query(`CREATE TABLE IF NOT EXISTS comments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255) NOT NULL,
-    dish_id INT NOT NULL,
-    comment TEXT NOT NULL,
-    FOREIGN KEY (dish_id) REFERENCES menu(id)
-)`, (err, result) => {
-    if (err) throw err;
-    console.log('Comments table created or exists already');
 });
 
 app.get('/comments/:dish_id', (req, res) => {
