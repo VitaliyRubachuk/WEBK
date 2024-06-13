@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Адміністративна панель</h1>
+        <nav>
+            <a href="index.html">Меню</a>
+            <a href="admin-orders.html">Переглянути замовлення</a>
+            <a href="#" id="logoutLink">Вихід</a>
+        </nav>        
+    </header>
+    <main>
+        <h2>Добавити новий продукт</h2>
+        <form id="menuForm">
+            <label for="dishName">Назва:</label>
+            <input type="text" id="dishName" required>
+            <label for="dishPrice">Ціна:</label>
+            <input type="number" id="dishPrice" required>
+            <label for="dishImage">Image URL:</label>
+            <input type="text" id="dishImage" required>
+            <label for="dishDescription">Опис:</label> 
+            <textarea id="dishDescription" required></textarea>
+            <label for="dishWeight">Вага:</label> 
+            <input type="number" id="dishWeight" required>
+            <label for="dishCategory">Категорія:</label>
+            <select id="dishCategory" required>
+            </select>
+            <button type="submit">Добавити</button>
+        </form>
+        
+        <div id="menuList"></div>
+        <h2>Добавити категорію</h2>
+        <form id="categoryForm">
+            <label for="categoryName">Назва категорії:</label>
+            <input type="text" id="categoryName" required>
+            <button type="submit">Додати</button>
+        </form>
+        <div id="categoryList"></div>
+    </main>
+    <script src="admin.js"></script>
+</body>
+</html>

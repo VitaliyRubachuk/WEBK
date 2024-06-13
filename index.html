@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Il Gambero Rosso</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <img src="images/logo.png" alt="Restaurant Logo" class="logo">
+        <h1>Il Gambero Rosso</h1>
+        <nav>
+            <a href="order.html">Мої замовлення</a>
+            <a href="#" id="adminLink" style="display: none;">Адміністративна панель</a>
+            <a href="#" id="logoutLink" style="display: none;">Вихід</a>
+            <a href="login.html" id="loginLink">Вхід</a>
+        </nav>
+    </header>
+    <main>
+        <h2>Меню</h2>
+        <div class="filter-container">
+            <input type="text" id="productFilter" class="product-filter" placeholder="Введіть назву вашої страви...">
+        </div>
+        <div id="menu" class="menu-container"></div>
+    </main>
+    
+
+    <div id="commentModal" class="modal">
+        <div class="modal-content">
+            <span id="commentModalClose" class="close">&times;</span>
+            <h2>Comments</h2>
+            <div id="commentsContainer"></div>
+            <form id="commentForm" class="comment-form">
+                <input type="text" id="newComment" placeholder="Add a comment...">
+                <button type="submit" id="commentSubmit">Submit</button>
+            </form>
+            <p id="registrationMessage" style="display: none;">Please <a href="register.html">register</a> to leave a comment.</p>
+        </div>
+    </div>
+    
+     
+    
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span id="editModalClose" class="close">&times;</span>
+            <h2>Edit Product</h2>
+            <form id="editForm">
+                <label for="dishName">Назва:</label>
+                <input type="text" id="dishName" name="dishName" required>
+                <label for="dishPrice">Ціна:</label>
+                <input type="number" id="dishPrice" name="dishPrice" required>
+                <label for="dishImage">Image URL:</label>
+                <input type="text" id="dishImage" name="dishImage" required>
+                <label for="dishDescription">Опис:</label>
+                <textarea id="dishDescription" name="dishDescription" required></textarea>
+                <label for="dishWeight">Вага:</label>
+                <input type="number" id="dishWeight" name="dishWeight" required>
+                <label for="dishCategory">Категорія:</label>
+                <select id="dishCategory" name="dishCategory" required>
+                </select>
+                <button type="submit">Оновити</button>
+            </form>
+        </div>
+    </div>
+    
+
+    <script src="main.js"></script>
+</body>
+
+<footer id="footer">
+    <div>
+        
+        <p>Зв'яжіться з нами:</p>
+        <div class="social-icons">
+            <a href="https://www.facebook.com/" target="_blank"><img src="images/facebook-icon.png" alt="Facebook"></a>
+            <a href="https://web.telegram.org/" target="_blank"><img src="images/telegram-icon.png" alt="Telegram"></a>
+            <a href="https://www.instagram.com/" target="_blank"><img src="images/instagram-icon.png" alt="Instagram"></a>
+        </div>
+    </div>
+</footer>
+
+
+</html>

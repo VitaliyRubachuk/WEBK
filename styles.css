@@ -1,0 +1,522 @@
+body 
+{
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8f8;
+}
+
+/* Скролл */
+html 
+{
+    overflow: hidden;
+}
+  
+  body 
+  {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: -30px;
+    bottom: 0;
+
+    overflow-y: scroll;
+  }
+  
+
+.logo 
+{
+    position: absolute;
+    left: 0%;
+    width: 100px; 
+    height: auto; 
+    margin-right: 10px;
+    z-index: 999; /* Щоб логотип був наверху */
+}
+
+
+header
+ {
+    background-color: #333;
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+}
+
+nav a 
+{
+    color: white;
+    margin: 0 10px;
+    text-decoration: none;
+}
+
+#footer 
+{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    transition: height 0.3s ease;
+    height: 0;
+    overflow: hidden;
+}
+
+#footer:hover {
+    height: 150px; 
+}
+
+#footer p 
+{
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+}
+
+.social-icons a {
+    margin-right: 10px;
+}
+
+.social-icons img {
+    width: 40px; 
+    height: auto;
+    transition: transform 0.3s ease;
+}
+
+.social-icons a:hover img {
+    transform: scale(1.2); 
+}
+main 
+{
+    /*text-align: center;*/
+    padding: 20px;
+}
+
+.modal 
+{
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4);
+    padding-top: 60px;
+}
+
+.modal-content 
+{
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+}
+
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+h1
+{
+    color: #ffffff;
+}
+
+h2
+{
+    text-align: center;
+    
+}
+
+h2, h3, h4 
+{
+    color: #333;
+}
+
+form 
+{
+    
+    max-width: 400px;
+    margin: 20px auto 10px; 
+    padding: 20px;
+    padding-right: 60px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#menuList, #categoryList 
+{
+    display: flex;
+}
+
+#menuList 
+{
+    margin-bottom: 0px;
+}
+
+form label
+{
+    display: block;
+    margin: 10px 0 5px;
+}
+
+form input
+{
+    width: 94%;
+    padding: 10px;
+    margin: 5px 0;
+}
+
+form select, form button 
+{
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+}
+
+#menu 
+{
+    margin-top: 20px;
+}
+
+textarea
+{
+    width: 395px;
+    height: 150px;
+}
+
+.weight
+{
+    position: relative;
+    opacity: 0.5;
+}
+
+
+.category 
+{
+    margin-bottom: 20px;
+    background-color: #f8f8f8;
+    padding: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    
+    max-height: 100px;
+    overflow: hidden;
+    transition: max-height 0.5s ease;
+}
+
+.category h3
+ {
+    cursor: pointer;
+    text-align: center;
+}
+
+.category.open 
+{
+    max-height: 10000px; 
+}
+
+.menu-item 
+{
+    padding: 10px;
+    margin-bottom: 5px;
+    background-color: #fff;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    
+}
+
+.menu-item.show 
+{
+    opacity: 1;
+}
+
+.menu-item h4, .menu-item p 
+{
+    margin: 5px;
+}
+
+.menu-item h4
+ {
+    flex: 1;
+}
+
+
+.dish-description 
+{
+    position: relative;
+    left: 10%;
+    top: -120px;
+    font-size: 14px;
+    color: #666;
+    margin-top: 10px;
+    word-wrap: break-word;
+    overflow-wrap: break-word; 
+}
+
+.menu-item img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-left: 10px;
+}
+
+.menu-item, .order-item {
+    padding: 10px;
+    margin: 10px 0;
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+img
+ {
+    max-width: 100%;
+    height: auto;
+}
+
+.edit-button, .delete-button 
+{
+    position: block;
+    background: none;
+    border: none;
+    cursor: pointer;
+
+}
+
+.delete-button
+{
+    font-size: 10px;
+}
+
+.edit-button
+{
+    font-size: 16px;
+    margin-right: 20px;
+    margin-left: 20px;
+}
+
+.edit-button:hover,.delete-button:hover
+ {
+    background-color: #d7e1e4; 
+
+}
+
+.add-to-cart 
+{
+    background-color: #8ed2e4; 
+    border: none;
+    color: rgb(255, 255, 255); 
+    padding: 5px 15px; 
+    text-align: center; 
+    text-decoration: none; 
+    display: inline-block; 
+    font-size: 12px; 
+    margin: 4px 2px; 
+    cursor: pointer; 
+    border-radius: 10px; 
+    transition: background-color 0.3s ease;
+}
+
+.add-to-cart:hover {
+    background-color: #45a049; 
+}
+
+.remove-button:hover {
+    background-color: #f5c4c4; 
+}
+.remove-button 
+{
+    border-radius: 20px; 
+    background: none;
+    border: none;
+    color: rgb(134, 132, 132);
+    font-size: 15px; 
+    cursor: pointer;
+    position: absolute;
+    left: 95%;
+    top: 20px;
+    transform: translateX(-50%);
+}
+
+.order-item 
+{
+    position: relative;
+    padding-left: 20px; 
+    margin-bottom: 10px; 
+}
+
+
+#checkout-button 
+{
+    position: relative;
+    background-color: #8ed2e4; 
+    color: white; 
+    padding: 10px 20px; 
+    font-size: 16px;
+    border: none; 
+    border-radius: 5px; 
+    cursor: pointer;
+    transition: background-color 0.3s; 
+    top: 35px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.no-orders
+ {
+    margin-top: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+    font-size: 1.5em;
+    color: #555;
+}
+
+#checkout-button:hover
+ {
+    background-color: #45a049;
+}
+
+
+.order-item 
+{
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.delete-button {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.delete-button:hover {
+    background-color: darkred;
+}
+
+
+.comment 
+{
+    border: none;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+}
+
+.comment p 
+{
+    margin: 5px 0;
+}
+
+.comment .delete-comment 
+{
+    margin-left: 10px;
+    padding: 3px 8px;
+    background-color: #ff6b6b;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.comment .delete-comment:hover 
+{
+    background-color: #ff4d4d;
+}
+
+
+@media (max-width: 1400px) 
+{
+    .dish-description 
+    {
+        position: relative;
+        left: 15%;
+        top: -120px;
+        font-size: 14px;
+        color: #666;
+        margin-top: 10px;
+    }
+
+}
+
+
+@media (max-width: 800px) 
+{
+    header {
+        padding: 10px;
+    }
+
+    form {
+        padding: 10px;
+    }
+
+
+.logo 
+{
+    position: relative;
+    width: 120px; 
+    height: auto; 
+    margin-right: 10px;
+}
+
+.dish-description 
+{
+    position: relative;
+    left: 30%;
+    top: -120px;
+    font-size: 14px;
+    color: #666;
+    margin-top: 10px;
+}
+
+
+}
+.filter-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.product-filter {
+    width: 80%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .product-filter {
+        width: 90%;
+    }
+}
+
