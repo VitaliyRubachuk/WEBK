@@ -4,31 +4,31 @@ const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 
 const app = express();
 const port = process.env.PORT || 3000;
+const saltRounds = parseInt(process.env.SALT_ROUNDS) || 10;
 
 app.use(cors());
 app.use(bodyParser.json());
 
-// Підключення до бази даних MySQL на Heroku через ClearDB
 const db = mysql.createPool({
-  host: process.env.CLEARDB_DATABASE_HOST,
+  host: 'eu-cluster-west-01.k8s.cleardb.net',
   user: process.env.CLEARDB_DATABASE_USER,
   password: process.env.CLEARDB_DATABASE_PASSWORD,
   database: process.env.CLEARDB_DATABASE_NAME,
-  connectionLimit: 10, // Ліміт з'єднань до бази даних
+  connectionLimit: 30, // Можна змінити
 });
 
-// Перевірка з'єднання з базою даних
+
 db.getConnection((err, connection) => {
   if (err) {
     console.error('Error connecting to database:', err);
   } else {
     console.log('MySQL Connected...');
 
-    // Створення таблиць, якщо вони ще не існують
+
     const createTables = `
       CREATE TABLE IF NOT EXISTS orders (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -36,16 +36,19 @@ db.getConnection((err, connection) => {
         additionalRequests TEXT,
         orderedItemsIds TEXT
       );
+
       CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(255) NOT NULL,
         password VARCHAR(255) NOT NULL,
         role VARCHAR(50) DEFAULT 'user'
       );
+
       CREATE TABLE IF NOT EXISTS categories (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL
       );
+
       CREATE TABLE IF NOT EXISTS menu (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
@@ -56,6 +59,7 @@ db.getConnection((err, connection) => {
         category_id INT,
         FOREIGN KEY (category_id) REFERENCES categories(id)
       );
+
       CREATE TABLE IF NOT EXISTS comments (
         id INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(255) NOT NULL,
@@ -65,30 +69,38 @@ db.getConnection((err, connection) => {
       );
     `;
 
-    connection.query(createTables, (err, result) => {
-      if (err) throw err;
-      console.log('Tables created or already exist');
+
+    const queries = createTables.split(';').filter(q => q.trim() !== '');
+
+    queries.forEach(query => {
+      connection.query(query, (err, result) => {
+        if (err) throw err;
+        console.log('Table created or already exists');
+      });
     });
 
-    // Вставка адміністратора, якщо не існує
-    const insertAdminUser = `
-      INSERT INTO users (username, password, role)
-      SELECT * FROM (SELECT 'admin', ?, 'admin') AS tmp
-      WHERE NOT EXISTS (
-          SELECT username FROM users WHERE username = 'admin'
-      ) LIMIT 1;
-    `;
 
-    connection.query(insertAdminUser, [bcrypt.hashSync('admin', 10)], (err, result) => {
+    const insertAdminUser = `
+    INSERT INTO users (username, password, role)
+    SELECT 'admin', ?, 'admin' FROM DUAL
+    WHERE NOT EXISTS (
+        SELECT username FROM users WHERE username = 'admin'
+    ) LIMIT 1;
+  `;
+  
+  bcrypt.hash('admin', saltRounds, (err, hashedPassword) => {
+    if (err) throw err;
+    connection.query(insertAdminUser, [hashedPassword], (err, result) => {
       if (err) throw err;
       console.log('Admin user inserted if not exists');
+    });
     });
 
     connection.release();
   }
 });
 
-// Маршрути для отримання коментарів
+
 app.get('/comments/:dish_id', (req, res) => {
   const { dish_id } = req.params;
   db.query('SELECT * FROM comments WHERE dish_id = ?', [dish_id], (err, results) => {
@@ -101,7 +113,7 @@ app.get('/comments/:dish_id', (req, res) => {
   });
 });
 
-// Маршрути для додавання коментарів
+
 app.post('/comments', (req, res) => {
   const { username, dish_id, comment } = req.body;
   db.query('INSERT INTO comments (username, dish_id, comment) VALUES (?, ?, ?)', [username, dish_id, comment], (err, result) => {
@@ -309,7 +321,7 @@ app.use((req, res, next) => {
     res.status(500).json({ success: false, message: 'Internal server error' });
   });
   
-  // Прослуховування порту
+
   app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
   });

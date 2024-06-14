@@ -1,9 +1,7 @@
-document.addEventListener("DOMContentLoaded", function() 
-{
+document.addEventListener("DOMContentLoaded", function() {
     const ordersList = document.getElementById("ordersList");
 
-    function fetchOrders() 
-    {
+    function fetchOrders() {
         fetch('http://localhost:3000/orders')
             .then(response => response.json())
             .then(orders => {
@@ -21,8 +19,7 @@ document.addEventListener("DOMContentLoaded", function()
                     ordersList.appendChild(orderItem);
                 });
 
-                document.querySelectorAll(".delete-button").forEach(button => 
-                    {
+                document.querySelectorAll(".delete-button").forEach(button => {
                     button.addEventListener("click", function() {
                         const orderId = this.dataset.id;
                         deleteOrder(orderId);
@@ -32,10 +29,8 @@ document.addEventListener("DOMContentLoaded", function()
             .catch(error => console.error('Error fetching orders:', error));
     }
 
-    function deleteOrder(id) 
-    {
-        fetch(`http://localhost:3000/orders/${id}`, 
-            {
+    function deleteOrder(id) {
+        fetch(`http://localhost:3000/orders/${id}`, {
             method: 'DELETE'
         })
         .then(response => response.json())
@@ -51,4 +46,48 @@ document.addEventListener("DOMContentLoaded", function()
     }
 
     fetchOrders();
+
+   
+    function fetchDishes(event) {
+        event.preventDefault();
+        fetch('http://localhost:3000/menu')
+            .then(response => response.json())
+            .then(menu => {
+                const modal = document.getElementById("myModal");
+                const modalContent = document.getElementById("modalContent");
+
+                modalContent.innerHTML = '';
+                menu.forEach(item => {
+                    const dishItem = document.createElement("div");
+                    dishItem.classList.add("dish-item");
+                    dishItem.innerHTML = `
+                        <p><strong>ID:</strong> ${item.id}</p>
+                        <p><strong>Назва:</strong> ${item.name}</p>
+                    `;
+                    modalContent.appendChild(dishItem);
+                });
+
+                modal.style.display = "block";
+            })
+            .catch(error => console.error('Error fetching menu:', error));
+    }
+
+    // Event listener for the "View Dishes" link
+    const viewDishesLink = document.getElementById("viewDishesLink");
+    viewDishesLink.addEventListener("click", fetchDishes);
+
+    // Close modal when clicking on the close button (cross)
+    const modal = document.getElementById("myModal");
+    const closeButton = document.querySelector(".close");
+
+    closeButton.addEventListener("click", function() {
+        modal.style.display = "none";
+    });
+
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    }
 });
