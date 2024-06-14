@@ -18,7 +18,7 @@ const db = mysql.createPool({
   user: process.env.CLEARDB_DATABASE_USER,
   password: process.env.CLEARDB_DATABASE_PASSWORD,
   database: process.env.CLEARDB_DATABASE_NAME,
-  connectionLimit: 30, // Можна змінити
+  connectionLimit: 30, // Можна збільшити якщо сервер крашить
 });
 
 
