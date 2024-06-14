@@ -4,34 +4,33 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 
-const saltRounds = 10; // кількість раундів для генерації солі
+require('dotenv').config();
+
+const saltRounds = parseInt(process.env.SALT_ROUNDS, 10); // кількість раундів для генерації солі
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
 
 const db = mysql.createConnection({
-    host: '127.0.0.1',
-    user: 'root',
-    password: '',
-    database: 'restaurant'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
 });
 
 db.connect(err => {
     if (err) throw err;
     console.log('MySQL Connected...');
-    
 
-    db.query(`CREATE DATABASE IF NOT EXISTS restaurant`, (err, result) => {
+    db.query(`CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME}`, (err, result) => {
         if (err) throw err;
         console.log('Database created or exists already');
 
-
-        db.changeUser({ database: 'restaurant' }, err => {
+        db.changeUser({ database: process.env.DB_NAME }, err => {
             if (err) throw err;
-            console.log('Connected to database restaurant');
-
+            console.log('Connected to database', process.env.DB_NAME);
 
             db.query(`CREATE TABLE IF NOT EXISTS orders (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -61,7 +60,6 @@ db.connect(err => {
                 console.log('Categories table created or exists already');
             });
 
-
             db.query(`CREATE TABLE IF NOT EXISTS menu (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
@@ -75,7 +73,6 @@ db.connect(err => {
                 if (err) throw err;
                 console.log('Menu table created or exists already');
             });
-
 
             db.query(`CREATE TABLE IF NOT EXISTS comments (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -92,14 +89,14 @@ db.connect(err => {
                 if (err) throw err;
                 if (results.length === 0) {
                     try {
-                        const hashedPassword = await bcrypt.hash('admin', saltRounds); 
+                        const hashedPassword = await bcrypt.hash('admin', saltRounds);
                         db.query(`INSERT INTO users (username, password, role) VALUES ('admin', ?, 'admin')`, [hashedPassword], (err, result) => {
                             if (err) throw err;
                             console.log('Admin user created');
                         });
                     } catch (error) {
                         console.error('Error while hashing password:', error);
-                        throw error; // Обробка помилок шифрування паролю
+                        throw error;
                     }
                 } else {
                     console.log('Admin user already exists');
@@ -124,7 +121,6 @@ app.post('/comments', (req, res) => {
         res.json({ success: true });
     });
 });
-
 
 const reorderIDs = (table, callback) => {
     db.query(`SET @count = 0`, err => {
@@ -155,7 +151,6 @@ app.delete('/orders/:id', (req, res) => {
         });
     });
 });
-
 
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
@@ -215,7 +210,6 @@ app.post('/login', (req, res) => {
     });
 });
 
-
 app.post('/categories', (req, res) => {
     const { name } = req.body;
     db.query('INSERT INTO categories (name) VALUES (?)', [name], (err, result) => {
@@ -261,10 +255,6 @@ app.delete('/comments/:id', (req, res) => {
     });
 });
 
-
-
-
-
 app.delete('/menu/:id', (req, res) => {
     const { id } = req.params;
     db.query('DELETE FROM menu WHERE id = ?', [id], (err, result) => {
@@ -301,11 +291,10 @@ app.use((req, res, next) => {
     next();
 });
 
-
 app.put('/menu/:id', (req, res) => {
     const { id } = req.params;
     const { name, price, image, description, weight, category_id } = req.body;
-    console.log('Update Request Body:', req.body);  
+    console.log('Update Request Body:', req.body);
 
     db.query('UPDATE menu SET name = ?, price = ?, image = ?, description = ?, weight = ?, category_id = ? WHERE id = ?', [name, price, image, description, weight, category_id, id], (err, result) => {
         if (err) {
@@ -317,8 +306,7 @@ app.put('/menu/:id', (req, res) => {
     });
 });
 
-
-
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
+
