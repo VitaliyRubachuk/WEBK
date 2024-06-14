@@ -1,10 +1,11 @@
+require('dotenv').config();
+
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 
-require('dotenv').config();
 
 const saltRounds = parseInt(process.env.SALT_ROUNDS, 10); // кількість раундів для генерації солі
 const app = express();
