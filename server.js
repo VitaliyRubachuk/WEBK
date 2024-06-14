@@ -6,121 +6,112 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 
-
-const saltRounds = parseInt(process.env.SALT_ROUNDS, 10); // кількість раундів для генерації солі
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
 
-const db = mysql.createConnection({
-    host: '127.0.0.1',
-    user: 'root',
-    password: '',
+// Підключення до бази даних MySQL на Heroku через ClearDB
+const db = mysql.createPool({
+  host: process.env.CLEARDB_DATABASE_HOST,
+  user: process.env.CLEARDB_DATABASE_USER,
+  password: process.env.CLEARDB_DATABASE_PASSWORD,
+  database: process.env.CLEARDB_DATABASE_NAME,
+  connectionLimit: 10, // Ліміт з'єднань до бази даних
 });
 
-
-db.connect(err => {
-    if (err) throw err;
+// Перевірка з'єднання з базою даних
+db.getConnection((err, connection) => {
+  if (err) {
+    console.error('Error connecting to database:', err);
+  } else {
     console.log('MySQL Connected...');
 
-    db.query(`CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME}`, (err, result) => {
-        if (err) throw err;
-        console.log('Database created or exists already');
+    // Створення таблиць, якщо вони ще не існують
+    const createTables = `
+      CREATE TABLE IF NOT EXISTS orders (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) NOT NULL,
+        additionalRequests TEXT,
+        orderedItemsIds TEXT
+      );
+      CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        role VARCHAR(50) DEFAULT 'user'
+      );
+      CREATE TABLE IF NOT EXISTS categories (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS menu (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        price DECIMAL(10, 2) NOT NULL,
+        image TEXT,
+        description TEXT,
+        weight INT,
+        category_id INT,
+        FOREIGN KEY (category_id) REFERENCES categories(id)
+      );
+      CREATE TABLE IF NOT EXISTS comments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) NOT NULL,
+        dish_id INT NOT NULL,
+        comment TEXT NOT NULL,
+        FOREIGN KEY (dish_id) REFERENCES menu(id)
+      );
+    `;
 
-        db.changeUser({ database: process.env.DB_NAME }, err => {
-            if (err) throw err;
-            console.log('Connected to database', process.env.DB_NAME);
-
-            db.query(`CREATE TABLE IF NOT EXISTS orders (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                username VARCHAR(255) NOT NULL,
-                additionalRequests TEXT,
-                orderedItemsIds TEXT
-            )`, (err, result) => {
-                if (err) throw err;
-                console.log('Orders table created or exists already');
-            });
-
-            db.query(`CREATE TABLE IF NOT EXISTS users (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                username VARCHAR(255) NOT NULL,
-                password VARCHAR(255) NOT NULL,
-                role VARCHAR(50) DEFAULT 'user'
-            )`, (err, result) => {
-                if (err) throw err;
-                console.log('Users table created or exists already');
-            });
-
-            db.query(`CREATE TABLE IF NOT EXISTS categories (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(255) NOT NULL
-            )`, (err, result) => {
-                if (err) throw err;
-                console.log('Categories table created or exists already');
-            });
-
-            db.query(`CREATE TABLE IF NOT EXISTS menu (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(255) NOT NULL,
-                price DECIMAL(10, 2) NOT NULL,
-                image TEXT,
-                description TEXT,
-                weight INT,
-                category_id INT,
-                FOREIGN KEY (category_id) REFERENCES categories(id)
-            )`, (err, result) => {
-                if (err) throw err;
-                console.log('Menu table created or exists already');
-            });
-
-            db.query(`CREATE TABLE IF NOT EXISTS comments (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                username VARCHAR(255) NOT NULL,
-                dish_id INT NOT NULL,
-                comment TEXT NOT NULL,
-                FOREIGN KEY (dish_id) REFERENCES menu(id)
-            )`, (err, result) => {
-                if (err) throw err;
-                console.log('Comments table created or exists already');
-            });
-
-            db.query(`SELECT * FROM users WHERE username = 'admin'`, async (err, results) => {
-                if (err) throw err;
-                if (results.length === 0) {
-                    try {
-                        const hashedPassword = await bcrypt.hash('admin', saltRounds);
-                        db.query(`INSERT INTO users (username, password, role) VALUES ('admin', ?, 'admin')`, [hashedPassword], (err, result) => {
-                            if (err) throw err;
-                            console.log('Admin user created');
-                        });
-                    } catch (error) {
-                        console.error('Error while hashing password:', error);
-                        throw error;
-                    }
-                } else {
-                    console.log('Admin user already exists');
-                }
-            });
-        });
+    connection.query(createTables, (err, result) => {
+      if (err) throw err;
+      console.log('Tables created or already exist');
     });
+
+    // Вставка адміністратора, якщо не існує
+    const insertAdminUser = `
+      INSERT INTO users (username, password, role)
+      SELECT * FROM (SELECT 'admin', ?, 'admin') AS tmp
+      WHERE NOT EXISTS (
+          SELECT username FROM users WHERE username = 'admin'
+      ) LIMIT 1;
+    `;
+
+    connection.query(insertAdminUser, [bcrypt.hashSync('admin', 10)], (err, result) => {
+      if (err) throw err;
+      console.log('Admin user inserted if not exists');
+    });
+
+    connection.release();
+  }
 });
 
+// Маршрути для отримання коментарів
 app.get('/comments/:dish_id', (req, res) => {
-    const { dish_id } = req.params;
-    db.query('SELECT * FROM comments WHERE dish_id = ?', [dish_id], (err, results) => {
-        if (err) throw err;
-        res.json(results);
-    });
+  const { dish_id } = req.params;
+  db.query('SELECT * FROM comments WHERE dish_id = ?', [dish_id], (err, results) => {
+    if (err) {
+      console.error('Error getting comments:', err);
+      res.status(500).json({ success: false, message: 'Failed to get comments' });
+    } else {
+      res.json(results);
+    }
+  });
 });
 
+// Маршрути для додавання коментарів
 app.post('/comments', (req, res) => {
-    const { username, dish_id, comment } = req.body;
-    db.query('INSERT INTO comments (username, dish_id, comment) VALUES (?, ?, ?)', [username, dish_id, comment], (err, result) => {
-        if (err) throw err;
-        res.json({ success: true });
-    });
+  const { username, dish_id, comment } = req.body;
+  db.query('INSERT INTO comments (username, dish_id, comment) VALUES (?, ?, ?)', [username, dish_id, comment], (err, result) => {
+    if (err) {
+      console.error('Error adding comment:', err);
+      res.status(500).json({ success: false, message: 'Failed to add comment' });
+    } else {
+      res.json({ success: true });
+    }
+  });
 });
 
 const reorderIDs = (table, callback) => {
@@ -308,7 +299,18 @@ app.put('/menu/:id', (req, res) => {
     });
 });
 
-app.listen(port, () => {
+app.use((req, res, next) => {
+    res.status(404).json({ success: false, message: 'Route not found' });
+  });
+  
+  // Глобальний обробник помилок
+  app.use((err, req, res, next) => {
+    console.error('Error:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  });
+  
+  // Прослуховування порту
+  app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
-});
+  });
 
