@@ -43,12 +43,26 @@ header
     text-align: center;
 }
 
-nav a 
-{
-    color: white;
+header nav {
+    display: flex;
+    justify-content: center; /* Це для центрування по центру сторінки */
+    margin-top: 40px; /* При бажанні можна налаштувати відступ */
+}
+
+header nav a {
     margin: 0 10px;
     text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    background-color: #9b9797;
 }
+
+header nav a:hover {
+    background-color: #ddd;
+}
+
 
 #footer 
 {

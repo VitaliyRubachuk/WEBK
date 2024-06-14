@@ -177,7 +177,8 @@ app.post('/register', async (req, res) => {
 app.post('/orders', (req, res) => {
     const { username, additionalRequests, orderedItemsIds } = req.body;
 
-    db.query('INSERT INTO orders (username, additionalRequests, orderedItemsIds) VALUES (?, ?, ?)', [username, additionalRequests, orderedItemsIds], (err, result) => {
+    db.query('INSERT INTO orders (username, additionalRequests, orderedItemsIds) VALUES (?, ?, ?)', 
+        [username, additionalRequests, orderedItemsIds], (err, result) => {
         if (err) {
             console.error('Error while adding order:', err);
             return res.status(500).json({ success: false, message: 'Failed to add order', error: err.message });
