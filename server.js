@@ -9,6 +9,7 @@ const bcrypt = require('bcrypt');
 const app = express();
 const port = process.env.PORT || 3000;
 const saltRounds = parseInt(process.env.SALT_ROUNDS) || 10;
+const dbcheck = process.env.DBCHECK;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -88,7 +89,7 @@ db.getConnection((err, connection) => {
     ) LIMIT 1;
   `;
   
-  bcrypt.hash('admin', saltRounds, (err, hashedPassword) => {
+  bcrypt.hash('dbcheck', saltRounds, (err, hashedPassword) => {
     if (err) throw err;
     connection.query(insertAdminUser, [hashedPassword], (err, result) => {
       if (err) throw err;
