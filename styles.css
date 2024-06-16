@@ -318,13 +318,26 @@ img
     background: none;
     border: none;
     cursor: pointer;
+    border-radius: 10px;
+    transition: background-color 0.3s; 
 
 }
 
 .delete-button
 {
-    font-size: 10px;
+    position: relative;
+    font-size: 15px;
+    color: rgb(0, 0, 0);
+    border: none;
+    padding: 2px 8px;
+    cursor: pointer;
+    
 }
+
+.delete-button:hover {
+    background-color: darkred;
+}
+
 
 .edit-button
 {
@@ -333,7 +346,7 @@ img
     margin-left: 20px;
 }
 
-.edit-button:hover,.delete-button:hover
+.edit-button:hover
  {
     background-color: #d7e1e4; 
 
@@ -414,7 +427,7 @@ img
 
 #checkout-button:hover
  {
-    background-color: #45a049;
+    background-color: #9aa045;
 }
 
 
@@ -425,18 +438,20 @@ img
     margin: 10px 0;
 }
 
-.delete-button {
-    background-color: red;
-    color: white;
+.comment-button
+{
+    background: none;
+    border-radius: 10px;
+    font-size: 15px;
     border: none;
-    padding: 5px 10px;
     cursor: pointer;
+    transition: background-color 0.3s; 
 }
 
-.delete-button:hover {
-    background-color: darkred;
+.comment-button:hover
+ {
+    background-color: #7ca77e;
 }
-
 
 .comment 
 {

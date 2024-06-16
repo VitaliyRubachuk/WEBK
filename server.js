@@ -1,9 +1,5 @@
 require('dotenv').config();
 
-const path = require('path');
-
-
-
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
@@ -313,21 +309,6 @@ app.put('/menu/:id', (req, res) => {
             res.json({ success: true });
         }
     });
-});
-
-
-app.use(express.static(path.join(__dirname, 'rest2')));
-
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'rest2', 'index.html'));
-});
-
-
-
-
-app.use((req, res, next) => {
-    console.log('Requested URL:', req.url);
-    next();
 });
 
 app.use((req, res, next) => {
